@@ -1,46 +1,50 @@
-// Alternância de Telas (Pesquisa / Nova Tarefa)
-const btnMudarAcao = document.getElementById('btnMudarAcao');
-const DivDeAddTarefa = document.getElementById('DivDeAddTarefa');
-const DivDeSuport = document.getElementById('DivDeSuport');
+const STORAGE_KEYS = {
+    tarefas: 'minhasTarefas',
+    lixeira: 'minhasTarefasExcluidas'
+};
 
-DivDeAddTarefa.style.display = 'none';
-DivDeSuport.style.display = 'flex';
+const refs = {
+    btnMudarAcao: document.getElementById('btnMudarAcao'),
+    divAddTarefa: document.getElementById('DivDeAddTarefa'),
+    divSuport: document.getElementById('DivDeSuport'),
+    btnNewTarefa: document.getElementById('btnNewTarefa'),
+    inputNewTarefa: document.getElementById('inputNewTarefa'),
+    divListaDeTarefas: document.getElementById('ListaDeTarefas'),
+    inputPesquisa: document.getElementById('inputPesquisa'),
+    selectFiltro: document.getElementById('selectFiltro'),
+    btnLimparTudo: document.getElementById('btnLimparTudo'),
+    contadorCaracteres: document.getElementById('contadorCaracteres'),
+    cardPendentes: document.getElementById('cardPendentes'),
+    cardConcluidas: document.getElementById('cardConcluidas'),
+    cardLixeira: document.getElementById('cardLixeira'),
+    qtdPendentes: document.getElementById('qtdPendentes'),
+    qtdConcluidas: document.getElementById('qtdConcluidas'),
+    qtdLixeira: document.getElementById('qtdLixeira')
+};
 
-btnMudarAcao.addEventListener("click", () => {
-    if (btnMudarAcao.innerHTML.includes("Pesquisar")) {
-        btnMudarAcao.innerHTML = `<i class="fa-solid fa-circle-plus"></i> Nova Tarefa`;
-        DivDeSuport.style.display = 'flex';
-        DivDeAddTarefa.style.display = 'none';
-    } else {
-        btnMudarAcao.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> Pesquisar`;
-        DivDeAddTarefa.style.display = 'flex';
-        DivDeSuport.style.display = 'none';
+let objetoListaDeTarefas = carregarLista(STORAGE_KEYS.tarefas);
+let objetoLixeiraDeTarefas = carregarLista(STORAGE_KEYS.lixeira);
+let filtroStatusAtual = 'todos';
+
+function carregarLista(chave) {
+    try {
+        const dados = JSON.parse(localStorage.getItem(chave));
+        return Array.isArray(dados) ? dados : [];
+    } catch {
+        return [];
     }
-});
+}
 
-// Banco de Dados Local
-let objetoListaDeTarefas = JSON.parse(localStorage.getItem('minhasTarefas')) || [];
-let objetoLixeiraDeTarefas = JSON.parse(localStorage.getItem('minhasTarefasExcluidas')) || [];
+function salvarNoLocalStorage() {
+    localStorage.setItem(STORAGE_KEYS.tarefas, JSON.stringify(objetoListaDeTarefas));
+    localStorage.setItem(STORAGE_KEYS.lixeira, JSON.stringify(objetoLixeiraDeTarefas));
+}
 
-const btnNewTarefa = document.getElementById('btnNewTarefa');
-const inputNewTarefa = document.getElementById('inputNewTarefa');
-const divListaDeTarefas = document.getElementById('ListaDeTarefas');
-const inputPesquisa = document.getElementById('inputPesquisa');
-const selectFiltro = document.getElementById('selectFiltro');
-const btnLimparTudo = document.getElementById('btnLimparTudo');
-const contadorCaracteres = document.getElementById('contadorCaracteres');
-
-const qtdPendentes = document.getElementById('qtdPendentes');
-const qtdConcluidas = document.getElementById('qtdConcluidas');
-const qtdLixeira = document.getElementById('qtdLixeira');
-
-// FUNÇÃO DO EFEITO VISUAL DE NOTIFICAÇÃO FLUTUANTE
 function mostrarNotificacao(mensagem, tipo = 'sucesso') {
     const container = document.getElementById('container-notificacoes');
     const toast = document.createElement('div');
     toast.classList.add('toast', tipo);
 
-    // Define os ícones baseados no tipo de evento
     let icone = '<i class="fa-solid fa-circle-check"></i>';
     if (tipo === 'aviso') icone = '<i class="fa-solid fa-circle-exclamation"></i>';
     if (tipo === 'perigo') icone = '<i class="fa-solid fa-trash-can"></i>';
@@ -48,125 +52,168 @@ function mostrarNotificacao(mensagem, tipo = 'sucesso') {
     toast.innerHTML = `${icone} <span>${mensagem}</span>`;
     container.appendChild(toast);
 
-    // Remove automaticamente após 3 segundos com efeito de fade-out
     setTimeout(() => {
         toast.style.animation = 'fadeOut 0.4s ease forwards';
         setTimeout(() => toast.remove(), 400);
     }, 3000);
 }
 
-function salvarNoLocalStorage() {
-    localStorage.setItem('minhasTarefas', JSON.stringify(objetoListaDeTarefas));
-    localStorage.setItem('minhasTarefasExcluidas', JSON.stringify(objetoLixeiraDeTarefas));
-}
-
 function atualizarContadores() {
-    const pendentes = objetoListaDeTarefas.filter(t => !t.Concluida).length;
-    const concluidas = objetoListaDeTarefas.filter(t => t.Concluida).length;
-    const lixeira = objetoLixeiraDeTarefas.length;
-
-    qtdPendentes.innerText = pendentes;
-    qtdConcluidas.innerText = concluidas;
-    qtdLixeira.innerText = lixeira;
+    refs.qtdPendentes.textContent = objetoListaDeTarefas.filter(tarefa => !tarefa.Concluida).length;
+    refs.qtdConcluidas.textContent = objetoListaDeTarefas.filter(tarefa => tarefa.Concluida).length;
+    refs.qtdLixeira.textContent = objetoLixeiraDeTarefas.length;
 }
 
-// Contador e validação visual de limite de caracteres
-inputNewTarefa.addEventListener('input', () => {
-    const caracteresDigitados = inputNewTarefa.value.length;
-    contadorCaracteres.innerText = `${caracteresDigitados} / 45 caracteres`;
+function gerenciarEstiloCardsAtivos() {
+    refs.cardPendentes.classList.remove('card-ativo');
+    refs.cardConcluidas.classList.remove('card-ativo');
+    refs.cardLixeira.classList.remove('card-ativo');
 
-    if (caracteresDigitados >= 40) {
-        contadorCaracteres.style.color = '#ff4d4d';
-        contadorCaracteres.style.fontWeight = 'bold';
-    } else if (caracteresDigitados >= 30) {
-        contadorCaracteres.style.color = '#e67e22';
-    } else {
-        contadorCaracteres.style.color = '#555';
-        contadorCaracteres.style.fontWeight = 'normal';
-    }
-});
+    if (filtroStatusAtual === 'pendentes') refs.cardPendentes.classList.add('card-ativo');
+    if (filtroStatusAtual === 'concluidas') refs.cardConcluidas.classList.add('card-ativo');
+    if (filtroStatusAtual === 'lixeira') refs.cardLixeira.classList.add('card-ativo');
+}
+
+function configurarAlternanciaDeTelas() {
+    refs.divAddTarefa.style.display = 'none';
+    refs.divSuport.style.display = 'flex';
+
+    refs.btnMudarAcao.addEventListener('click', () => {
+        const estaEmPesquisa = refs.btnMudarAcao.innerHTML.includes('Pesquisar');
+
+        if (estaEmPesquisa) {
+            refs.btnMudarAcao.innerHTML = '<i class="fa-solid fa-circle-plus"></i> Nova Tarefa';
+            refs.divSuport.style.display = 'flex';
+            refs.divAddTarefa.style.display = 'none';
+        } else {
+            refs.btnMudarAcao.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Pesquisar';
+            refs.divAddTarefa.style.display = 'flex';
+            refs.divSuport.style.display = 'none';
+        }
+    });
+}
+
+function configurarContadorDeCaracteres() {
+    refs.inputNewTarefa.addEventListener('input', () => {
+        const caracteresDigitados = refs.inputNewTarefa.value.length;
+        refs.contadorCaracteres.textContent = `${caracteresDigitados} / 45 caracteres`;
+
+        if (caracteresDigitados >= 40) {
+            refs.contadorCaracteres.style.color = '#ff4d4d';
+            refs.contadorCaracteres.style.fontWeight = 'bold';
+        } else if (caracteresDigitados >= 30) {
+            refs.contadorCaracteres.style.color = '#e67e22';
+        } else {
+            refs.contadorCaracteres.style.color = '#555';
+            refs.contadorCaracteres.style.fontWeight = 'normal';
+        }
+    });
+}
+
+function configurarFiltrosDeCartoes() {
+    refs.cardPendentes.addEventListener('click', () => {
+        filtroStatusAtual = filtroStatusAtual === 'pendentes' ? 'todos' : 'pendentes';
+        gerenciarEstiloCardsAtivos();
+        renderizarTarefas();
+    });
+
+    refs.cardConcluidas.addEventListener('click', () => {
+        filtroStatusAtual = filtroStatusAtual === 'concluidas' ? 'todos' : 'concluidas';
+        gerenciarEstiloCardsAtivos();
+        renderizarTarefas();
+    });
+
+    refs.cardLixeira.addEventListener('click', () => {
+        filtroStatusAtual = filtroStatusAtual === 'lixeira' ? 'todos' : 'lixeira';
+        gerenciarEstiloCardsAtivos();
+        renderizarTarefas();
+    });
+}
 
 function renderizarTarefas() {
-    divListaDeTarefas.innerHTML = '';
+    refs.divListaDeTarefas.innerHTML = '';
     atualizarContadores();
+    gerenciarEstiloCardsAtivos();
 
-    const filtroAtivo = selectFiltro.value;
-    let tarefasFiltradas = [];
+    let tarefasFiltradas = filtroStatusAtual === 'lixeira'
+        ? [...objetoLixeiraDeTarefas]
+        : [...objetoListaDeTarefas];
 
-    if (filtroAtivo === 'lixeira') {
-        tarefasFiltradas = [...objetoLixeiraDeTarefas];
-    } else {
-        tarefasFiltradas = [...objetoListaDeTarefas];
+    const termoBusca = refs.inputPesquisa.value.trim().toLowerCase();
+    if (termoBusca) {
+        tarefasFiltradas = tarefasFiltradas.filter(tarefa => tarefa.Tarefa.toLowerCase().includes(termoBusca));
     }
 
-    const termoBusca = inputPesquisa.value.toLowerCase();
-    tarefasFiltradas = tarefasFiltradas.filter(t => t.Tarefa.toLowerCase().includes(termoBusca));
+    if (filtroStatusAtual === 'concluidas') {
+        tarefasFiltradas = tarefasFiltradas.filter(tarefa => tarefa.Concluida);
+    } else if (filtroStatusAtual === 'pendentes') {
+        tarefasFiltradas = tarefasFiltradas.filter(tarefa => !tarefa.Concluida);
+    }
 
-    if (filtroAtivo === 'concluidas') {
-        tarefasFiltradas = tarefasFiltradas.filter(t => t.Concluida);
-    } else if (filtroAtivo === 'pendentes') {
-        tarefasFiltradas = tarefasFiltradas.filter(t => !t.Concluida);
-    } else if (filtroAtivo === 'az') {
+    if (refs.selectFiltro.value === 'az') {
         tarefasFiltradas.sort((a, b) => a.Tarefa.localeCompare(b.Tarefa));
     }
 
     if (tarefasFiltradas.length === 0) {
-        divListaDeTarefas.innerHTML = `<p class="lista-vazia">Nenhuma tarefa encontrada.</p>`;
+        refs.divListaDeTarefas.innerHTML = '<p class="lista-vazia">Nenhuma tarefa encontrada neste filtro.</p>';
         return;
     }
 
     tarefasFiltradas.forEach((tarefa, index) => {
-        const estaNaLixeira = (filtroAtivo === 'lixeira');
+        const estaNaLixeira = filtroStatusAtual === 'lixeira';
 
-        divListaDeTarefas.innerHTML += `
-            <ul class="Tarefa ${tarefa.Concluida ? 'concluida-linha' : ''}">
-                <li>${index + 1}</li> 
-                <li class="texto-tarefa">
-                    <div id="containerTexto-${tarefa.id}">
-                        <span class="nome-txt" id="spanTarefa-${tarefa.id}">${tarefa.Tarefa}</span>
-                    </div>
-                    <small class="data-criacao"><i class="fa-regular fa-clock"></i> ${tarefa.DataCriacao}</small>
-                </li>
-                <li class="status-badge-container">
-                    <span class="status-badge ${tarefa.Concluida ? 'concluida' : 'pendente'}">
-                        ${tarefa.Concluida ? 'Concluída' : 'Pendente'}
-                    </span>
-                </li>
-                <li>
-                    <input type="checkbox" class="ConcluirTarefa" 
-                        ${tarefa.Concluida ? 'checked' : ''} 
-                        ${estaNaLixeira ? 'disabled' : ''} 
-                        onchange="alternarStatusTarefa(${tarefa.id})">
-                </li>
-                <li>
-                    <div class="AcoesBotoes">
-                        ${estaNaLixeira ? `
-                            <button class="btnRecuperar" onclick="recuperarTarefa(${tarefa.id})" title="Recuperar Tarefa">
-                                <i class="fa-solid fa-trash-arrow-up"></i>
-                            </button>
-                            <button class="btnDeletarDefinitivo" onclick="deletarDefinitivo(${tarefa.id})" title="Excluir Definitivamente">
-                                <i class="fa-solid fa-rectangle-xmark"></i>
-                            </button>
-                        ` : `
-                            <button class="btnEditar" id="btnEditar-${tarefa.id}" onclick="habilitarEdicao(${tarefa.id})" title="Editar Texto">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button class="btnDeletar" onclick="moverParaLixeira(${tarefa.id})" title="Mover para Lixeira">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        `}
-                    </div>
-                </li>
-            </ul>
+        const ul = document.createElement('ul');
+        ul.className = `Tarefa ${tarefa.Concluida ? 'concluida-linha' : ''}`;
+        ul.innerHTML = `
+            <li>${index + 1}</li>
+            <li class="texto-tarefa">
+                <div id="containerTexto-${tarefa.id}">
+                    <span class="nome-txt" id="spanTarefa-${tarefa.id}">${tarefa.Tarefa}</span>
+                </div>
+                <small class="data-criacao"><i class="fa-regular fa-clock"></i> ${tarefa.DataCriacao}</small>
+            </li>
+            <li class="status-badge-container">
+                <span class="status-badge ${tarefa.Concluida ? 'concluida' : 'pendente'}">
+                    ${tarefa.Concluida ? 'Concluída' : 'Pendente'}
+                </span>
+            </li>
+            <li>
+                <input
+                    type="checkbox"
+                    class="ConcluirTarefa"
+                    ${tarefa.Concluida ? 'checked' : ''}
+                    ${estaNaLixeira ? 'disabled' : ''}
+                    onchange="alternarStatusTarefa(${tarefa.id})"
+                >
+            </li>
+            <li>
+                <div class="AcoesBotoes">
+                    ${estaNaLixeira ? `
+                        <button class="btnRecuperar" onclick="recuperarTarefa(${tarefa.id})" title="Recuperar Tarefa">
+                            <i class="fa-solid fa-trash-arrow-up"></i>
+                        </button>
+                        <button class="btnDeletarDefinitivo" onclick="deletarDefinitivo(${tarefa.id})" title="Excluir Definitivamente">
+                            <i class="fa-solid fa-rectangle-xmark"></i>
+                        </button>
+                    ` : `
+                        <button class="btnEditar" id="btnEditar-${tarefa.id}" onclick="habilitarEdicao(${tarefa.id})" title="Editar Texto">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button class="btnDeletar" onclick="moverParaLixeira(${tarefa.id})" title="Mover para Lixeira">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `}
+                </div>
+            </li>
         `;
+        refs.divListaDeTarefas.appendChild(ul);
     });
 }
 
-// Adicionar tarefa
-btnNewTarefa.addEventListener('click', () => {
-    const valor = inputNewTarefa.value.trim();
-    if (valor === '') {
-        mostrarNotificacao("Não é possível adicionar uma tarefa vazia!", "aviso");
+function adicionarTarefa() {
+    const valor = refs.inputNewTarefa.value.trim();
+    if (!valor) {
+        mostrarNotificacao('Não é possível adicionar uma tarefa vazia!', 'aviso');
         return;
     }
 
@@ -181,101 +228,125 @@ btnNewTarefa.addEventListener('click', () => {
         DataCriacao: `${dataFormatada} às ${horaFormatada}`
     });
 
-    inputNewTarefa.value = '';
-    contadorCaracteres.innerText = `0 / 45 caracteres`;
-    contadorCaracteres.style.color = '#555';
+    refs.inputNewTarefa.value = '';
+    refs.contadorCaracteres.textContent = '0 / 45 caracteres';
+    refs.contadorCaracteres.style.color = '#555';
+    refs.contadorCaracteres.style.fontWeight = 'normal';
+
     salvarNoLocalStorage();
     renderizarTarefas();
-    mostrarNotificacao("Tarefa adicionada com sucesso!");
-});
+    mostrarNotificacao('Tarefa adicionada com sucesso!');
+}
 
-// Alterar checkbox
 function alternarStatusTarefa(idTarefa) {
-    const tarefa = objetoListaDeTarefas.find(t => t.id === idTarefa);
-    if (tarefa) {
-        tarefa.Concluida = !tarefa.Concluida;
-        salvarNoLocalStorage();
-        renderizarTarefas();
+    const tarefa = objetoListaDeTarefas.find(item => item.id === idTarefa);
+    if (!tarefa) return;
 
-        if (tarefa.Concluida) {
-            mostrarNotificacao("Tarefa marcada como Concluída! 🎉");
-        } else {
-            mostrarNotificacao("Tarefa retornada para Pendente.", "aviso");
-        }
+    tarefa.Concluida = !tarefa.Concluida;
+    salvarNoLocalStorage();
+    renderizarTarefas();
+
+    if (tarefa.Concluida) {
+        mostrarNotificacao('Tarefa marcada como Concluída! 🎉');
+    } else {
+        mostrarNotificacao('Tarefa retornada para Pendente.', 'aviso');
     }
 }
 
 function habilitarEdicao(idTarefa) {
-    const tarefa = objetoListaDeTarefas.find(t => t.id === idTarefa);
+    const tarefa = objetoListaDeTarefas.find(item => item.id === idTarefa);
     if (!tarefa) return;
 
     const container = document.getElementById(`containerTexto-${idTarefa}`);
     const btnEditar = document.getElementById(`btnEditar-${idTarefa}`);
 
+    if (!container || !btnEditar) return;
+
     container.innerHTML = `<input type="text" class="input-edicao" id="inputEdit-${idTarefa}" maxlength="45" value="${tarefa.Tarefa}">`;
-    btnEditar.innerHTML = `<i class="fa-solid fa-check" style="color: #2db32d;"></i>`;
-    btnEditar.setAttribute("onclick", `salvarEdicao(${idTarefa})`);
+    btnEditar.innerHTML = '<i class="fa-solid fa-check" style="color: #2db32d;"></i>';
+    btnEditar.onclick = () => salvarEdicao(idTarefa);
 
     const inputElement = document.getElementById(`inputEdit-${idTarefa}`);
     inputElement.focus();
-    inputElement.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") salvarEdicao(idTarefa);
+    inputElement.addEventListener('keydown', (evento) => {
+        if (evento.key === 'Enter') salvarEdicao(idTarefa);
     });
 }
 
 function salvarEdicao(idTarefa) {
-    const tarefa = objetoListaDeTarefas.find(t => t.id === idTarefa);
-    const novoTexto = document.getElementById(`inputEdit-${idTarefa}`).value.trim();
+    const tarefa = objetoListaDeTarefas.find(item => item.id === idTarefa);
+    const inputElement = document.getElementById(`inputEdit-${idTarefa}`);
+    const novoTexto = inputElement ? inputElement.value.trim() : '';
 
-    if (novoTexto === '') {
-        mostrarNotificacao("O texto da tarefa não pode ficar vazio!", "aviso");
+    if (!tarefa) return;
+    if (!novoTexto) {
+        mostrarNotificacao('O texto da tarefa não pode ficar vazio!', 'aviso');
         return;
     }
 
-    if (tarefa) {
-        tarefa.Tarefa = novoTexto;
-        salvarNoLocalStorage();
-        renderizarTarefas();
-        mostrarNotificacao("Tarefa atualizada!");
-    }
+    tarefa.Tarefa = novoTexto;
+    salvarNoLocalStorage();
+    renderizarTarefas();
+    mostrarNotificacao('Tarefa atualizada!');
 }
 
-// Mover para lixeira
 function moverParaLixeira(idTarefa) {
-    const tarefaIndex = objetoListaDeTarefas.findIndex(t => t.id === idTarefa);
-    if (tarefaIndex !== -1) {
-        const [tarefaRemovida] = objetoListaDeTarefas.splice(tarefaIndex, 1); objetoLixeiraDeTarefas.unshift(tarefaRemovida); salvarNoLocalStorage(); renderizarTarefas(); mostrarNotificacao("Tarefa movida para a lixeira.", "aviso");
-    }
-}// Recuperar da lixeira
-function recuperarTarefa(idTarefa) {
-    const tarefaIndex = objetoLixeiraDeTarefas.findIndex(t => t.id === idTarefa);
-    if (tarefaIndex !== -1) {
-        const [tarefaRecuperada] = objetoLixeiraDeTarefas.splice(tarefaIndex, 1);
-        objetoListaDeTarefas.push(tarefaRecuperada);
-        salvarNoLocalStorage();
-        renderizarTarefas();
-        mostrarNotificacao("Tarefa restaurada com sucesso!");
-    }
+    const tarefaIndex = objetoListaDeTarefas.findIndex(tarefa => tarefa.id === idTarefa);
+    if (tarefaIndex === -1) return;
+
+    const [tarefaRemovida] = objetoListaDeTarefas.splice(tarefaIndex, 1);
+    objetoLixeiraDeTarefas.unshift(tarefaRemovida);
+    salvarNoLocalStorage();
+    renderizarTarefas();
+    mostrarNotificacao('Tarefa movida para a lixeira.', 'aviso');
 }
 
-// Excluir de vez
-function deletarDefinitivo(idTarefa) { if (confirm("Esta ação excluirá permanentemente esta tarefa. Continuar?")) { objetoLixeiraDeTarefas = objetoLixeiraDeTarefas.filter(t => t.id !== idTarefa); salvarNoLocalStorage(); renderizarTarefas(); mostrarNotificacao("Tarefa deletada permanentemente.", "perigo"); } }
-// Limpar tudo do botão superior
-btnLimparTudo.addEventListener('click', (e) => {
-    e.preventDefault();
+function recuperarTarefa(idTarefa) {
+    const tarefaIndex = objetoLixeiraDeTarefas.findIndex(tarefa => tarefa.id === idTarefa);
+    if (tarefaIndex === -1) return;
+
+    const [tarefaRecuperada] = objetoLixeiraDeTarefas.splice(tarefaIndex, 1);
+    objetoListaDeTarefas.push(tarefaRecuperada);
+    salvarNoLocalStorage();
+    renderizarTarefas();
+    mostrarNotificacao('Tarefa restaurada com sucesso!');
+}
+
+function deletarDefinitivo(idTarefa) {
+    if (!confirm('Esta ação excluirá permanentemente esta tarefa. Continuar?')) return;
+
+    objetoLixeiraDeTarefas = objetoLixeiraDeTarefas.filter(tarefa => tarefa.id !== idTarefa);
+    salvarNoLocalStorage();
+    renderizarTarefas();
+    mostrarNotificacao('Tarefa deletada permanentemente.', 'perigo');
+}
+
+function limparLixeira() {
     if (objetoLixeiraDeTarefas.length === 0) {
-        mostrarNotificacao("Sua lixeira já está vazia!", "aviso");
+        mostrarNotificacao('Sua lixeira já está vazia!', 'aviso');
         return;
     }
-    if (confirm("Deseja apagar definitivamente TODOS os itens que estão na lixeira?")) {
-        objetoLixeiraDeTarefas = [];
-        salvarNoLocalStorage();
-        renderizarTarefas();
-        mostrarNotificacao("Lixeira esvaziada completamente.", "perigo");
-    }
-});
 
-inputPesquisa.addEventListener('input', renderizarTarefas);
-selectFiltro.addEventListener('change', renderizarTarefas);
-// Inicialização segurarenderizar
-Tarefas();
+    if (!confirm('Deseja apagar definitivamente TODOS os itens que estão na lixeira?')) return;
+
+    objetoLixeiraDeTarefas = [];
+    salvarNoLocalStorage();
+    renderizarTarefas();
+    mostrarNotificacao('Lixeira esvaziada completamente.', 'perigo');
+}
+
+function inicializarEventos() {
+    refs.btnNewTarefa.addEventListener('click', adicionarTarefa);
+    refs.btnLimparTudo.addEventListener('click', (evento) => {
+        evento.preventDefault();
+        limparLixeira();
+    });
+    refs.inputPesquisa.addEventListener('input', renderizarTarefas);
+    refs.selectFiltro.addEventListener('change', renderizarTarefas);
+}
+
+configurarAlternanciaDeTelas();
+configurarContadorDeCaracteres();
+configurarFiltrosDeCartoes();
+inicializarEventos();
+renderizarTarefas();

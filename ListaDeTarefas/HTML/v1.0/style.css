@@ -429,3 +429,36 @@ header h2 {
     .ContadorPainel { gap: 10px; padding: 10px; }
     .CardContador { font-size: 0.85rem; padding: 8px; }
 }
+
+/* Transforma os cards superiores em botões interativos e responsivos ao toque */
+.CardContador {
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+}
+
+.CardContador:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Efeito visual marcante quando o card de filtro está ativo */
+.CardContador.card-ativo {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.CardContador.pendentes.card-ativo {
+    background-color: #ffcccc;
+    outline: 2px solid #e74c3c;
+}
+
+.CardContador.concluidas.card-ativo {
+    background-color: #c2f0d5;
+    outline: 2px solid #2ecc71;
+}
+
+.CardContador.lixeira.card-ativo {
+    background-color: #e2e8f0;
+    outline: 2px solid #7f8c8d;
+}

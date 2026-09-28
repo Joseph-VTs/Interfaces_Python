@@ -37,13 +37,10 @@
             </div>
             
             <div class="Filtro">
-                <label for="selectFiltro">Filtro</label>
+                <label for="selectFiltro">Ordem</label>
                 <select id="selectFiltro">
-                    <option value="todos">Todos os Ativos</option>
-                    <option value="az">A - Z (Ativos)</option>
-                    <option value="concluidas">Concluídas</option>
-                    <option value="pendentes">Pendentes</option>
-                    <option value="lixeira">Ver Lixeira 🗑️</option>
+                    <option value="todos">Padrão (Por Criação)</option>
+                    <option value="az">Alfabética (A - Z)</option>
                 </select>
             </div>
         </div>
@@ -60,10 +57,17 @@
         <div class="Tarefas">
             <h2>Lista de Tarefas</h2>
             
+            <!-- CONTADORES QUE AGORA ATUAM COMO FILTROS PRINCIPAIS -->
             <div class="ContadorPainel">
-                <div class="CardContador pendentes">Pendentes: <span id="qtdPendentes">0</span></div>
-                <div class="CardContador concluidas">Concluídas: <span id="qtdConcluidas">0</span></div>
-                <div class="CardContador lixeira">Na Lixeira: <span id="qtdLixeira">0</span></div>
+                <div class="CardContador pendentes" id="cardPendentes" title="Filtrar por Pendentes">
+                    Pendentes: <span id="qtdPendentes">0</span>
+                </div>
+                <div class="CardContador concluidas" id="cardConcluidas" title="Filtrar por Concluídas">
+                    Concluídas: <span id="qtdConcluidas">0</span>
+                </div>
+                <div class="CardContador lixeira" id="cardLixeira" title="Ver Itens na Lixeira">
+                    Na Lixeira: <span id="qtdLixeira">0</span>
+                </div>
             </div>
 
             <div class="TabelaResponsiva">
@@ -81,7 +85,6 @@
         </div>
     </div>
 
-    <!-- CONTÊINER PARA AS NOTIFICAÇÕES FLUTUANTES -->
     <div id="container-notificacoes"></div>
 
     <script src="script.js"></script>
