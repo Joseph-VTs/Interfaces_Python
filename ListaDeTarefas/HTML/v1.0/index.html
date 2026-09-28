@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/9543fb2281.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <h2>HOME</h2>
+        <div class="HeaderIcons">
+            <a href="#" class="ConfigNew" id="btnLimparTudo" title="Esvaziar Lixeira">
+                <i class="fa-solid fa-dumpster"></i>
+            </a>
+            <a href="#" class="ConfigNew">
+                <i class="fa-solid fa-gear"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="Uteis" id="Uteis">
+        <div class="Add-Tarefa" id="DivDeAddTarefa">
+            <label for="inputNewTarefa">Nova Tarefa</label>
+            <div class="InputContainer">
+                <input type="text" name="NewTarefa" id="inputNewTarefa" maxlength="45" placeholder="Digite sua tarefa...">
+                <small id="contadorCaracteres">0 / 45 caracteres</small>
+            </div>
+            <button type="button" id="btnNewTarefa">Adicionar</button>
+        </div>
+
+        <div class="Suport" id="DivDeSuport">
+            <div class="Pesquisa">
+                <label for="inputPesquisa">Pesquisa</label>
+                <input type="text" id="inputPesquisa" placeholder="Digite para buscar...">
+            </div>
+            
+            <div class="Filtro">
+                <label for="selectFiltro">Filtro</label>
+                <select id="selectFiltro">
+                    <option value="todos">Todos os Ativos</option>
+                    <option value="az">A - Z (Ativos)</option>
+                    <option value="concluidas">Concluídas</option>
+                    <option value="pendentes">Pendentes</option>
+                    <option value="lixeira">Ver Lixeira 🗑️</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="DivBtns">
+            <button type="button" id="btnMudarAcao">
+                <i class="fa-solid fa-circle-plus"></i>
+                Nova Tarefa
+            </button>
+        </div>
+    </div>
+
+    <div class="Container">
+        <div class="Tarefas">
+            <h2>Lista de Tarefas</h2>
+            
+            <div class="ContadorPainel">
+                <div class="CardContador pendentes">Pendentes: <span id="qtdPendentes">0</span></div>
+                <div class="CardContador concluidas">Concluídas: <span id="qtdConcluidas">0</span></div>
+                <div class="CardContador lixeira">Na Lixeira: <span id="qtdLixeira">0</span></div>
+            </div>
+
+            <div class="TabelaResponsiva">
+                <ul class="TarefaHeader">
+                    <li>ID</li>
+                    <li>TAREFA / CRIAÇÃO</li>
+                    <li>STATUS</li>
+                    <li>CHECK</li>
+                    <li>AÇÕES</li>
+                </ul>
+                <div class="ListaDeTarefas" id="ListaDeTarefas">
+                    <!-- Tarefas dinâmicas -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTÊINER PARA AS NOTIFICAÇÕES FLUTUANTES -->
+    <div id="container-notificacoes"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
