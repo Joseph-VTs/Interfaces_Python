@@ -462,3 +462,92 @@ header h2 {
     background-color: #e2e8f0;
     outline: 2px solid #7f8c8d;
 }
+
+/* ==========================================
+   ESTILOS ADICIONAIS DO MODO ESCURO
+   ========================================== */
+
+/* Cores de fundo e textos principais do Dark Mode */
+body.dark-mode {
+    background-color: #1e293b;
+}
+
+body.dark-mode *,
+body.dark-mode .nome-txt,
+body.dark-mode .TarefaHeader li {
+    color: #f1f5f9;
+}
+
+/* Modificações em caixas de inserção, inputs e tabelas */
+body.dark-mode header {
+    background-color: #0f172a;
+}
+
+body.dark-mode .Uteis {
+    background-color: #1e293b;
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .Add-Tarefa,
+body.dark-mode .Pesquisa,
+body.dark-mode .Filtro,
+body.dark-mode .Tarefas,
+body.dark-mode .InputContainer input,
+body.dark-mode .Pesquisa input,
+body.dark-mode .Filtro select,
+body.dark-mode .input-edicao {
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
+}
+
+body.dark-mode .TarefaHeader {
+    background-color: #334155;
+}
+
+body.dark-mode .Tarefa {
+    border-bottom: 1px solid #334155;
+}
+
+body.dark-mode .Tarefa:nth-child(even) {
+    background-color: #1e293b;
+}
+
+body.dark-mode .Tarefa:hover {
+    background-color: #334155;
+}
+
+/* Ajustes nos botões alternadores de tema e ações */
+body.dark-mode .DivBtns button {
+    background-color: #334155;
+    color: #f1f5f9;
+}
+
+body.dark-mode .Add-Tarefa button {
+    background-color: #3498db;
+}
+
+body.dark-mode #btnTema {
+    background-color: #f1c40f;
+}
+body.dark-mode #btnTema i {
+    color: #1e293b;
+}
+
+/* Efeito esmaecido na linha de tarefas concluídas no modo escuro */
+body.dark-mode .concluida-linha {
+    background-color: #0f172a;
+    opacity: 0.4;
+}
+body.dark-mode .concluida-linha .nome-txt {
+    color: #94a3b8;
+}
+
+/* Cores dos Cards estatísticos mantendo legibilidade no fundo escuro */
+body.dark-mode .CardContador.pendentes { background-color: #7f1d1d; color: #fca5a5; }
+body.dark-mode .CardContador.concluidas { background-color: #064e3b; color: #6ee7b7; }
+body.dark-mode .CardContador.lixeira { background-color: #334155; color: #cbd5e1; }
+
+body.dark-mode .CardContador.pendentes.card-ativo { outline: 2px solid #ef4444; background-color: #991b1b; }
+body.dark-mode .CardContador.concluidas.card-ativo { outline: 2px solid #10b981; background-color: #065f46; }
+body.dark-mode .CardContador.lixeira.card-ativo { outline: 2px solid #94a3b8; background-color: #475569; }
